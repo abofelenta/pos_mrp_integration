@@ -1,5 +1,5 @@
-from odoo import models, fields
+from odoo import models, api
 
-class ProductTemplate(models.Model):
-    _inherit = "product.template"
 
+class ProductProduct(models.Model):
+    _inherit = "product.product"
