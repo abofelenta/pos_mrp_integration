@@ -4,7 +4,13 @@ from collections import defaultdict
 
 class PosOrder(models.Model):
     _inherit = "pos.order"
+    mrp_production_ids = fields.One2many(
+        "mrp.production",
+        "pos_order_id",
+        string="Manufacturing Orders",
+        readonly=True,
 
+    ) 
     @api.constrains("lines")
     def _check_manufacture_products_have_bom(self):
         for order in self:
@@ -26,6 +32,12 @@ class PosOrder(models.Model):
                        _("Product %(products)s has no Bill of Materials and cannot be sold. for company %(company)s:",
                          company=order.company_id.name,products=", ".join(products_not_boms.mapped("display_name")),
                 ))
+            
+    @api.depends("mrp_production_ids")
+    def _compute_mrp_production_count(self):
+        for rec in self:
+            rec.mrp_production_count = len(rec.mrp_production_ids)
+
     def action_pos_order_paid(self):
         res = super().action_pos_order_paid()
         self._generate_mrp_orders()
@@ -63,3 +75,22 @@ class PosOrder(models.Model):
             production_orders.action_assign()
 
 
+            #the cost of Manufacturing  must be reflected in Product cost 
+            order.lines.mapped("product_id").action_bom_cost()
+            
+            #if all components are available then mark as done 
+            production_orders.filtered(
+                lambda p: p.components_availability_state != "unavailable"
+            ).button_mark_done()
+
+    #open Manufacturing Orders from POS Order form view
+    def action_open_mrp_production(self):
+            self.ensure_one()
+            return {
+                "name": _("MRP Productions"),
+                "type": "ir.actions.act_window",
+                "res_model": "mrp.production",
+                "view_mode": "list,kanban,form,calendar,pivot,graph,activity",
+                "domain": [("pos_order_id", "=", self.id)],
+                "context": {"create": False},
+            }
