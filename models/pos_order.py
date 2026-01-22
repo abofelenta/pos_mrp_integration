@@ -83,14 +83,3 @@ class PosOrder(models.Model):
                 lambda p: p.components_availability_state != "unavailable"
             ).button_mark_done()
 
-    #open Manufacturing Orders from POS Order form view
-    def action_open_mrp_production(self):
-            self.ensure_one()
-            return {
-                "name": _("MRP Productions"),
-                "type": "ir.actions.act_window",
-                "res_model": "mrp.production",
-                "view_mode": "list,kanban,form,calendar,pivot,graph,activity",
-                "domain": [("pos_order_id", "=", self.id)],
-                "context": {"create": False},
-            }
