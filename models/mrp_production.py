@@ -19,3 +19,12 @@ class MrpProduction(models.Model):
         copy=False,
         help="The POS Order Line that generated this Manufacturing Order",
     )
+    def action_open_pos_order(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "pos.order",
+            "res_id": self.pos_order_id.id,
+            "view_mode": "form",
+            "target": "current",
+        }

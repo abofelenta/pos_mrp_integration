@@ -11,6 +11,10 @@ class PosOrder(models.Model):
         readonly=True,
 
     ) 
+    mrp_production_count = fields.Integer(
+        string="MRP Production Count",
+        compute="_compute_mrp_production_count",
+    )
     @api.constrains("lines")
     def _check_manufacture_products_have_bom(self):
         for order in self:
