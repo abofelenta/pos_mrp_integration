@@ -7,6 +7,8 @@
     "data": [
         "security/ir.model.access.csv",
         "views/product_views.xml",
+        "views/pos_order_views.xml",
+        "views/mrp_productions_views.xml",
     ],
     "installable": True,
     "application": False,
